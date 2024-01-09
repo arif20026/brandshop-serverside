@@ -35,6 +35,7 @@ async function run() {
     await client.connect();
 
     const productCollection = client.db('productDB').collection('product')
+    const cartCollection = client.db('productDB').collection('cart')
 
     // create post operation (receiving products from front end)
 
@@ -49,10 +50,20 @@ async function run() {
     // Read (all data ) operation [showing all products in client side]
 
     app.get('/products', async(req,res) => {
-        const cursor = productCollection.find()
+        const cursor = productCollection.find() 
         const result = await cursor.toArray()
         res.send(result)
 
+    })
+
+    app.get('/:brandName', async(req,res) => {
+      
+        const brandName = req.params.brandName
+        const cursor = productCollection.find({brandName})
+        const result = await cursor.toArray()
+        res.send(result)
+
+      
     })
 
     // Read(single data) operation [showing single product in client side]
@@ -89,6 +100,33 @@ async function run() {
         const result = await productCollection.updateOne(filter,product,options)
         res.send(result)
     })
+
+    // cart related data
+
+    app.post('/cart', async (req, res) => {
+      
+        const cart = req.body;
+
+       console.log(cart)
+
+        const result = await cartCollection.insertOne(cart);
+        console.log(result)
+        res.send(result)
+
+      } )
+    
+
+    // Get cart items
+    app.get('/cart', async (req, res) => {
+      
+        const cursor = cartCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+        console.log(result)
+      
+    });
+
+    
 
 
 
